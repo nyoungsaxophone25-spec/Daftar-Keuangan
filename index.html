@@ -174,6 +174,11 @@
         }
         .bg-success { background-color: var(--success); }
         .bg-danger { background-color: var(--danger); }
+        
+        .text-muted {
+            font-size: 12px;
+            color: #777;
+        }
     </style>
 </head>
 <body>
@@ -200,6 +205,10 @@
         <div class="section-box">
             <h3>Tambah Transaksi Baru</h3>
             <form id="financeForm">
+                <div class="form-group">
+                    <label>Tanggal Transaksi</label>
+                    <input type="date" id="tanggal" required>
+                </div>
                 <div class="form-group">
                     <label>Keterangan</label>
                     <input type="text" id="keterangan" placeholder="Contoh: Gaji bulanan, Beli kopi" required>
@@ -232,6 +241,7 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>Waktu (Hari, Tanggal)</th>
                             <th>Keterangan</th>
                             <th>Jenis</th>
                             <th>Jumlah</th>
@@ -246,6 +256,9 @@
 </div>
 
 <script>
+    // Atur input tanggal ke hari ini secara otomatis saat halaman dibuka
+    document.getElementById('tanggal').valueAsDate = new Date();
+
     // Data Awal
     let dataTransaksi = [];
     let totalPemasukan = 0;
@@ -275,6 +288,13 @@
         return 'Rp ' + angka.toLocaleString('id-ID');
     }
 
+    // Fungsi mengubah format tanggal menjadi: Hari, Tanggal Bulan Tahun
+    function formatWaktuLengkap(tanggalInput) {
+        const opsi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const tanggalBaru = new Date(tanggalInput);
+        return tanggalBaru.toLocaleDateString('id-ID', opsi);
+    }
+
     // Fungsi Update Tampilan & Grafik
     function updateTampilan() {
         totalPemasukan = dataTransaksi
@@ -300,6 +320,9 @@
         const tableBody = document.getElementById('transactionTable');
         tableBody.innerHTML = '';
         
+        // Urutkan transaksi berdasarkan tanggal terbaru di atas
+        dataTransaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
         dataTransaksi.forEach(t => {
             const row = document.createElement('tr');
             
@@ -307,6 +330,7 @@
             const jenisText = t.jenis === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran';
 
             row.innerHTML = `
+                <td style="font-size: 14px;">${formatWaktuLengkap(t.tanggal)}</td>
                 <td>${t.keterangan}</td>
                 <td><span class="badge ${badgeClass}">${jenisText}</span></td>
                 <td class="${t.jenis === 'pemasukan' ? 'text-success' : 'text-danger'}" style="font-weight:bold;">
@@ -321,21 +345,23 @@
     document.getElementById('financeForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
+        const tanggal = document.getElementById('tanggal').value;
         const keterangan = document.getElementById('keterangan').value;
         const jenis = document.getElementById('jenis').value;
         const jumlah = parseInt(document.getElementById('jumlah').value);
 
-        // Tambah ke array data
-        dataTransaksi.push({ keterangan, jenis, jumlah });
+        // Tambah ke array data beserta tanggalnya
+        dataTransaksi.push({ tanggal, keterangan, jenis, jumlah });
 
-        // Reset Form input
+        // Reset Form input (kecuali tanggal tetap hari ini)
         document.getElementById('keterangan').value = '';
         document.getElementById('jumlah').value = '';
+        document.getElementById('tanggal').valueAsDate = new Date();
 
         // Segarkan data pada halaman
         updateTampilan();
     });
-</script> 
+</script>
 
 </body>
 </html>
