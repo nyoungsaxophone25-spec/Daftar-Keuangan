@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Keuangan Pribadi</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --primary: #4e73df;
+            --success: #1cc88a;
+            --danger: #e74a3b;
+            --warning: #f6c23e;
+            --dark: #5a5c69;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Ringkasan Kartu Atas */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card.pemasukan { border-left-color: var(--success); }
+        .card.pengeluaran { border-left-color: var(--danger); }
+        .card.sisa { border-left-color: var(--warning); }
+
+        .card-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: var(--dark);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .text-warning { color: var(--warning); }
+
+        /* Konten Utama (Form, Grafik, & Tabel) */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content { grid-template-columns: 1fr; }
+        }
+
+        .section-box {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #2e59d9;
+        }
+
+        /* Grafik */
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 250px;
+            width: 250px;
+        }
+
+        /* Tabel Transaksi */
+        .table-section {
+            grid-column: 1 / -1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        tr:nth-child(even) { background-color: #f9f9f9; }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        .bg-success { background-color: var(--success); }
+        .bg-danger { background-color: var(--danger); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Laporan Keuangan Interaktif</h2>
+
+    <div class="summary-cards">
+        <div class="card pemasukan">
+            <div class="card-title">Total Pemasukan</div>
+            <div class="card-value text-success" id="txtPemasukan">Rp 0</div>
+        </div>
+        <div class="card pengeluaran">
+            <div class="card-title">Total Pengeluaran</div>
+            <div class="card-value text-danger" id="txtPengeluaran">Rp 0</div>
+        </div>
+        <div class="card sisa">
+            <div class="card-title">Sisa Uang (Saldo)</div>
+            <div class="card-value text-warning" id="txtSisa">Rp 0</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="section-box">
+            <h3>Tambah Transaksi Baru</h3>
+            <form id="financeForm">
+                <div class="form-group">
+                    <label>Keterangan</label>
+                    <input type="text" id="keterangan" placeholder="Contoh: Gaji bulanan, Beli kopi" required>
+                </div>
+                <div class="form-group">
+                    <label>Jenis</label>
+                    <select id="jenis">
+                        <option value="pemasukan">Pemasukan</option>
+                        <option value="pengeluaran">Pengeluaran</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Jumlah (Rp)</label>
+                    <input type="number" id="jumlah" placeholder="Contoh: 50000" required>
+                </div>
+                <button type="submit">Simpan Transaksi</button>
+            </form>
+        </div>
+
+        <div class="section-box" style="text-align: center;">
+            <h3>Visualisasi Alokasi Dana</h3>
+            <div class="chart-container">
+                <canvas id="financeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="section-box table-section">
+            <h3>Daftar Riwayat Transaksi</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Keterangan</th>
+                            <th>Jenis</th>
+                            <th>Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionTable">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Data Awal
+    let dataTransaksi = [];
+    let totalPemasukan = 0;
+    let totalPengeluaran = 0;
+    let sisaUang = 0;
+
+    // Inisialisasi Grafik (Chart.js)
+    const ctx = document.getElementById('financeChart').getContext('2d');
+    let financeChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pemasukan', 'Pengeluaran'],
+            datasets: [{
+                data: [0, 0],
+                backgroundColor: ['#1cc88a', '#e74a3b'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Format mata uang rupiah
+    function formatRupiah(angka) {
+        return 'Rp ' + angka.toLocaleString('id-ID');
+    }
+
+    // Fungsi Update Tampilan & Grafik
+    function updateTampilan() {
+        totalPemasukan = dataTransaksi
+            .filter(t => t.jenis === 'pemasukan')
+            .reduce((sum, t) => sum + t.jumlah, 0);
+
+        totalPengeluaran = dataTransaksi
+            .filter(t => t.jenis === 'pengeluaran')
+            .reduce((sum, t) => sum + t.jumlah, 0);
+
+        sisaUang = totalPemasukan - totalPengeluaran;
+
+        // Update Angka Ringkasan
+        document.getElementById('txtPemasukan').innerText = formatRupiah(totalPemasukan);
+        document.getElementById('txtPengeluaran').innerText = formatRupiah(totalPengeluaran);
+        document.getElementById('txtSisa').innerText = formatRupiah(sisaUang);
+
+        // Update Grafik
+        financeChart.data.datasets[0].data = [totalPemasukan, totalPengeluaran];
+        financeChart.update();
+
+        // Update Tabel
+        const tableBody = document.getElementById('transactionTable');
+        tableBody.innerHTML = '';
+        
+        dataTransaksi.forEach(t => {
+            const row = document.createElement('tr');
+            
+            const badgeClass = t.jenis === 'pemasukan' ? 'bg-success' : 'bg-danger';
+            const jenisText = t.jenis === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran';
+
+            row.innerHTML = `
+                <td>${t.keterangan}</td>
+                <td><span class="badge ${badgeClass}">${jenisText}</span></td>
+                <td class="${t.jenis === 'pemasukan' ? 'text-success' : 'text-danger'}" style="font-weight:bold;">
+                    ${formatRupiah(t.jumlah)}
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Event saat Form Submit
+    document.getElementById('financeForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const keterangan = document.getElementById('keterangan').value;
+        const jenis = document.getElementById('jenis').value;
+        const jumlah = parseInt(document.getElementById('jumlah').value);
+
+        // Tambah ke array data
+        dataTransaksi.push({ keterangan, jenis, jumlah });
+
+        // Reset Form input
+        document.getElementById('keterangan').value = '';
+        document.getElementById('jumlah').value = '';
+
+        // Segarkan data pada halaman
+        updateTampilan();
+    });
+</script>
+
+</body>
+</html>
