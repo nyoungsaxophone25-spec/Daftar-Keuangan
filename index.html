@@ -269,7 +269,7 @@
                         </tr>
                     </thead>
                     <tbody id="transactionTable">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -280,16 +280,16 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // 1. ISI KONFIGURASI FIREBASE DI BAWAH INI
-    // (Tempel data Kunci API asli Anda dari tab "Use a <script> tag" di dalam tanda kurung kurawal ini)
+    // KODE KONFIGURASI FIREBASE ASLI ANDA SUDAH DISATUKAN DI SINI:
     const firebaseConfig = {
-        apiKey: "AIzaSyD-CONTOH-KEY-ANDA",
+        apiKey: "AIzaSyAYQ3N9zIxIusjlNZR7CviOb6s60ld4Oz4",
         authDomain: "daftar-keuangan.firebaseapp.com",
-        databaseURL: "https://daftar-keuangan-default-rtdb.firebaseio.com/",
+        databaseURL: "https://daftar-keuangan-default-rtdb.asia-southeast1.firebasedatabase.app",
         projectId: "daftar-keuangan",
-        storageBucket: "daftar-keuangan.appspot.com",
-        messagingSenderId: "1234567890",
-        appId: "1:1234:web:abcd"
+        storageBucket: "daftar-keuangan.firebasestorage.app",
+        messagingSenderId: "120218101123",
+        appId: "1:120218101123:web:f0119abd5abe85573b42b6",
+        measurementId: "G-22LQT7E8V1"
     };
 
     // Inisialisasi Firebase & Database
@@ -340,7 +340,6 @@
         totalPengeluaran = 0;
 
         if (dataObj) {
-            // Ubah objek Firebase menjadi array lokal untuk diurutkan
             Object.keys(dataObj).forEach(key => {
                 dataTransaksiGlobal.push({
                     id: key,
@@ -363,16 +362,13 @@
 
         sisaUang = totalPemasukan - totalPengeluaran;
 
-        // Tampilkan kalkulasi nominal di kartu atas
         document.getElementById('txtPemasukan').innerText = formatRupiah(totalPemasukan);
         document.getElementById('txtPengeluaran').innerText = formatRupiah(totalPengeluaran);
         document.getElementById('txtSisa').innerText = formatRupiah(sisaUang);
 
-        // Update visualisasi diagram lingkaran
         financeChart.data.datasets[0].data = [totalPemasukan, totalPengeluaran];
         financeChart.update();
 
-        // Buat struktur tabel riwayat
         const tableBody = document.getElementById('transactionTable');
         tableBody.innerHTML = '';
         
@@ -406,20 +402,17 @@
         });
     }
 
-    // Fungsi Sinkronisasi Data Realtime Otomatis saat Ada Perubahan di Server Cloud
+    // Fungsi Sinkronisasi Data Realtime Otomatis
     onValue(dbRef, (snapshot) => {
         const data = snapshot.val();
         renderTampilan(data);
     });
 
-    // Fungsi Menghapus Catatan di Cloud Database Firebase secara Permanen
+    // Fungsi Menghapus Catatan di Cloud Database
     function hapusTransaksi(id) {
         if (confirm("Apakah Anda yakin ingin menghapus catatan keuangan ini dari cloud database?")) {
             const dataSpesifikRef = ref(db, `transaksi/${id}`);
             remove(dataSpesifikRef)
-                .then(() => {
-                    console.log("Data berhasil terhapus dari cloud.");
-                })
                 .catch((error) => {
                     alert("Gagal menghapus data: " + error.message);
                 });
@@ -435,10 +428,8 @@
         const jenis = document.getElementById('jenis').value;
         const jumlah = parseInt(document.getElementById('jumlah').value);
 
-        // Kirim data baru ke Firebase Cloud
         push(dbRef, { tanggal, keterangan, jenis, jumlah })
             .then(() => {
-                // Reset Form input setelah berhasil terkirim
                 document.getElementById('keterangan').value = '';
                 document.getElementById('jumlah').value = '';
                 document.getElementById('tanggal').valueAsDate = new Date();
