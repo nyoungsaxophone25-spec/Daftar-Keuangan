@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laporan Keuangan Pribadi</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg-color: #f0f2f5;
@@ -79,7 +80,7 @@
         .text-danger { color: var(--danger); }
         .text-warning { color: var(--warning); }
 
-        /* Konten Utama (Form, Grafik, & Tabel) */
+        /* Konten Utama */
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -175,9 +176,19 @@
         .bg-success { background-color: var(--success); }
         .bg-danger { background-color: var(--danger); }
         
-        .text-muted {
-            font-size: 12px;
-            color: #777;
+        /* Desain Tombol Aksi Hapus */
+        .btn-delete {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px 10px;
+            transition: transform 0.1s;
+        }
+        
+        .btn-delete:hover {
+            transform: scale(1.2);
         }
     </style>
 </head>
@@ -245,6 +256,7 @@
                             <th>Keterangan</th>
                             <th>Jenis</th>
                             <th>Jumlah</th>
+                            <th style="text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="transactionTable">
@@ -256,11 +268,12 @@
 </div>
 
 <script>
-    // Atur input tanggal ke hari ini secara otomatis saat halaman dibuka
+    // Atur input tanggal ke hari ini secara otomatis
     document.getElementById('tanggal').valueAsDate = new Date();
 
-    // Data Awal
-    let dataTransaksi = [];
+    // Mengambil data lama dari LocalStorage jika ada, jika tidak ada buat array kosong []
+    let dataTransaksi = JSON.parse(localStorage.getItem('riwayatKeuangan')) || [];
+    
     let totalPemasukan = 0;
     let totalPengeluaran = 0;
     let sisaUang = 0;
@@ -283,20 +296,21 @@
         }
     });
 
-    // Format mata uang rupiah
     function formatRupiah(angka) {
         return 'Rp ' + angka.toLocaleString('id-ID');
     }
 
-    // Fungsi mengubah format tanggal menjadi: Hari, Tanggal Bulan Tahun
     function formatWaktuLengkap(tanggalInput) {
         const opsi = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const tanggalBaru = new Date(tanggalInput);
         return tanggalBaru.toLocaleDateString('id-ID', opsi);
     }
 
-    // Fungsi Update Tampilan & Grafik
+    // Fungsi Utama untuk Update Tampilan, Grafik, dan Simpan ke Memory
     function updateTampilan() {
+        // Simpan data terbaru ke LocalStorage agar tidak hilang saat di-refresh
+        localStorage.setItem('riwayatKeuangan', JSON.stringify(dataTransaksi));
+
         totalPemasukan = dataTransaksi
             .filter(t => t.jenis === 'pemasukan')
             .reduce((sum, t) => sum + t.jumlah, 0);
@@ -307,25 +321,21 @@
 
         sisaUang = totalPemasukan - totalPengeluaran;
 
-        // Update Angka Ringkasan
         document.getElementById('txtPemasukan').innerText = formatRupiah(totalPemasukan);
         document.getElementById('txtPengeluaran').innerText = formatRupiah(totalPengeluaran);
         document.getElementById('txtSisa').innerText = formatRupiah(sisaUang);
 
-        // Update Grafik
         financeChart.data.datasets[0].data = [totalPemasukan, totalPengeluaran];
         financeChart.update();
 
-        // Update Tabel
         const tableBody = document.getElementById('transactionTable');
         tableBody.innerHTML = '';
         
         // Urutkan transaksi berdasarkan tanggal terbaru di atas
         dataTransaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
-        dataTransaksi.forEach(t => {
+        dataTransaksi.forEach((t, index) => {
             const row = document.createElement('tr');
-            
             const badgeClass = t.jenis === 'pemasukan' ? 'bg-success' : 'bg-danger';
             const jenisText = t.jenis === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran';
 
@@ -336,12 +346,25 @@
                 <td class="${t.jenis === 'pemasukan' ? 'text-success' : 'text-danger'}" style="font-weight:bold;">
                     ${formatRupiah(t.jumlah)}
                 </td>
+                <td style="text-align: center;">
+                    <button class="btn-delete" onclick="hapusTransaksi(${index})" title="Hapus Catatan">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </td>
             `;
             tableBody.appendChild(row);
         });
     }
 
-    // Event saat Form Submit
+    // Fungsi Menghapus Satu Catatan Berdasarkan Index-nya
+    function hapusTransaksi(index) {
+        if (confirm("Apakah Anda yakin ingin menghapus catatan keuangan ini?")) {
+            dataTransaksi.splice(index, 1); // Menghapus data dari array
+            updateTampilan(); // Perbarui halaman & localstorage
+        }
+    }
+
+    // Event saat Form Submit (Simpan Transaksi)
     document.getElementById('financeForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -350,17 +373,19 @@
         const jenis = document.getElementById('jenis').value;
         const jumlah = parseInt(document.getElementById('jumlah').value);
 
-        // Tambah ke array data beserta tanggalnya
+        // Masukkan data baru ke array awal
         dataTransaksi.push({ tanggal, keterangan, jenis, jumlah });
 
-        // Reset Form input (kecuali tanggal tetap hari ini)
+        // Reset Form input
         document.getElementById('keterangan').value = '';
         document.getElementById('jumlah').value = '';
         document.getElementById('tanggal').valueAsDate = new Date();
 
-        // Segarkan data pada halaman
         updateTampilan();
     });
+
+    // Jalankan pemuatan data saat halaman pertama kali dibuka
+    updateTampilan();
 </script>
 
 </body>
