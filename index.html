@@ -134,6 +134,14 @@
             background-color: #2e59d9;
         }
 
+        /* Status Sinkronisasi */
+        .status-cloud {
+            text-align: center;
+            font-size: 13px;
+            color: #858796;
+            margin-top: 10px;
+        }
+
         /* Grafik */
         .chart-container {
             position: relative;
@@ -235,8 +243,9 @@
                     <label>Jumlah (Rp)</label>
                     <input type="number" id="jumlah" placeholder="Contoh: 50000" required>
                 </div>
-                <button type="submit">Simpan Transaksi</button>
+                <button type="submit">Simpan ke Cloud</button>
             </form>
+            <div class="status-cloud"><i class="fa-solid fa-cloud"></i> Terhubung ke Cloud Firebase Database</div>
         </div>
 
         <div class="section-box" style="text-align: center;">
@@ -267,13 +276,31 @@
     </div>
 </div>
 
-<script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    // 1. ISI KONFIGURASI FIREBASE DI BAWAH INI
+    // (Tempel data Kunci API asli Anda dari tab "Use a <script> tag" di dalam tanda kurung kurawal ini)
+    const firebaseConfig = {
+        apiKey: "AIzaSyD-CONTOH-KEY-ANDA",
+        authDomain: "daftar-keuangan.firebaseapp.com",
+        databaseURL: "https://daftar-keuangan-default-rtdb.firebaseio.com/",
+        projectId: "daftar-keuangan",
+        storageBucket: "daftar-keuangan.appspot.com",
+        messagingSenderId: "1234567890",
+        appId: "1:1234:web:abcd"
+    };
+
+    // Inisialisasi Firebase & Database
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, 'transaksi');
+
     // Atur input tanggal ke hari ini secara otomatis
     document.getElementById('tanggal').valueAsDate = new Date();
 
-    // Mengambil data lama dari LocalStorage jika ada, jika tidak ada buat array kosong []
-    let dataTransaksi = JSON.parse(localStorage.getItem('riwayatKeuangan')) || [];
-    
+    let dataTransaksiGlobal = [];
     let totalPemasukan = 0;
     let totalPengeluaran = 0;
     let sisaUang = 0;
@@ -306,35 +333,50 @@
         return tanggalBaru.toLocaleDateString('id-ID', opsi);
     }
 
-    // Fungsi Utama untuk Update Tampilan, Grafik, dan Simpan ke Memory
-    function updateTampilan() {
-        // Simpan data terbaru ke LocalStorage agar tidak hilang saat di-refresh
-        localStorage.setItem('riwayatKeuangan', JSON.stringify(dataTransaksi));
+    // Fungsi Utama untuk Memperbarui Tampilan Halaman
+    function renderTampilan(dataObj) {
+        dataTransaksiGlobal = [];
+        totalPemasukan = 0;
+        totalPengeluaran = 0;
 
-        totalPemasukan = dataTransaksi
-            .filter(t => t.jenis === 'pemasukan')
-            .reduce((sum, t) => sum + t.jumlah, 0);
+        if (dataObj) {
+            // Ubah objek Firebase menjadi array lokal untuk diurutkan
+            Object.keys(dataObj).forEach(key => {
+                dataTransaksiGlobal.push({
+                    id: key,
+                    ...dataObj[key]
+                });
+            });
 
-        totalPengeluaran = dataTransaksi
-            .filter(t => t.jenis === 'pengeluaran')
-            .reduce((sum, t) => sum + t.jumlah, 0);
+            // Urutkan transaksi berdasarkan tanggal terbaru di atas
+            dataTransaksiGlobal.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+            // Hitung kalkulasi total nominal
+            dataTransaksiGlobal.forEach(t => {
+                if (t.jenis === 'pemasukan') {
+                    totalPemasukan += t.jumlah;
+                } else if (t.jenis === 'pengeluaran') {
+                    totalPengeluaran += t.jumlah;
+                }
+            });
+        }
 
         sisaUang = totalPemasukan - totalPengeluaran;
 
+        // Tampilkan kalkulasi nominal di kartu atas
         document.getElementById('txtPemasukan').innerText = formatRupiah(totalPemasukan);
         document.getElementById('txtPengeluaran').innerText = formatRupiah(totalPengeluaran);
         document.getElementById('txtSisa').innerText = formatRupiah(sisaUang);
 
+        // Update visualisasi diagram lingkaran
         financeChart.data.datasets[0].data = [totalPemasukan, totalPengeluaran];
         financeChart.update();
 
+        // Buat struktur tabel riwayat
         const tableBody = document.getElementById('transactionTable');
         tableBody.innerHTML = '';
         
-        // Urutkan transaksi berdasarkan tanggal terbaru di atas
-        dataTransaksi.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-
-        dataTransaksi.forEach((t, index) => {
+        dataTransaksiGlobal.forEach((t) => {
             const row = document.createElement('tr');
             const badgeClass = t.jenis === 'pemasukan' ? 'bg-success' : 'bg-danger';
             const jenisText = t.jenis === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran';
@@ -347,24 +389,44 @@
                     ${formatRupiah(t.jumlah)}
                 </td>
                 <td style="text-align: center;">
-                    <button class="btn-delete" onclick="hapusTransaksi(${index})" title="Hapus Catatan">
+                    <button class="btn-delete" data-id="${t.id}" title="Hapus Catatan">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 </td>
             `;
             tableBody.appendChild(row);
         });
+
+        // Pasangkan fungsi hapus ke setiap tombol ikon sampah
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const idData = this.getAttribute('data-id');
+                hapusTransaksi(idData);
+            });
+        });
     }
 
-    // Fungsi Menghapus Satu Catatan Berdasarkan Index-nya
-    function hapusTransaksi(index) {
-        if (confirm("Apakah Anda yakin ingin menghapus catatan keuangan ini?")) {
-            dataTransaksi.splice(index, 1); // Menghapus data dari array
-            updateTampilan(); // Perbarui halaman & localstorage
+    // Fungsi Sinkronisasi Data Realtime Otomatis saat Ada Perubahan di Server Cloud
+    onValue(dbRef, (snapshot) => {
+        const data = snapshot.val();
+        renderTampilan(data);
+    });
+
+    // Fungsi Menghapus Catatan di Cloud Database Firebase secara Permanen
+    function hapusTransaksi(id) {
+        if (confirm("Apakah Anda yakin ingin menghapus catatan keuangan ini dari cloud database?")) {
+            const dataSpesifikRef = ref(db, `transaksi/${id}`);
+            remove(dataSpesifikRef)
+                .then(() => {
+                    console.log("Data berhasil terhapus dari cloud.");
+                })
+                .catch((error) => {
+                    alert("Gagal menghapus data: " + error.message);
+                });
         }
     }
 
-    // Event saat Form Submit (Simpan Transaksi)
+    // Event saat Form Submit (Simpan Transaksi Langsung ke Firebase Cloud)
     document.getElementById('financeForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
@@ -373,19 +435,18 @@
         const jenis = document.getElementById('jenis').value;
         const jumlah = parseInt(document.getElementById('jumlah').value);
 
-        // Masukkan data baru ke array awal
-        dataTransaksi.push({ tanggal, keterangan, jenis, jumlah });
-
-        // Reset Form input
-        document.getElementById('keterangan').value = '';
-        document.getElementById('jumlah').value = '';
-        document.getElementById('tanggal').valueAsDate = new Date();
-
-        updateTampilan();
+        // Kirim data baru ke Firebase Cloud
+        push(dbRef, { tanggal, keterangan, jenis, jumlah })
+            .then(() => {
+                // Reset Form input setelah berhasil terkirim
+                document.getElementById('keterangan').value = '';
+                document.getElementById('jumlah').value = '';
+                document.getElementById('tanggal').valueAsDate = new Date();
+            })
+            .catch((error) => {
+                alert("Gagal menyimpan data ke Cloud: " + error.message);
+            });
     });
-
-    // Jalankan pemuatan data saat halaman pertama kali dibuka
-    updateTampilan();
 </script>
 
 </body>
