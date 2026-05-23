@@ -6,117 +6,62 @@
     <title>Daftar Keuangan & Dashboard Grafik Interaktif</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> </head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
 <body class="bg-gray-100 text-gray-800 font-sans p-3 md:p-6">
 
     <div class="max-w-7xl mx-auto space-y-6">
-        
         <header class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
-                    📊 <span class="hidden sm:inline">Aplikasi</span> Daftar Keuangan & Dashboard
-                </h1>
+                <h1 class="text-2xl font-bold text-blue-900 flex items-center gap-2">📊 Aplikasi Daftar Keuangan & Dashboard</h1>
                 <p class="text-sm text-gray-500 mt-1">Sinkronisasi Cloud Realtime & Visualisasi Grafik</p>
             </div>
-            <div class="flex gap-2 self-start md:self-center">
-                <button onclick="unduhKeExcelLangsung()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer text-sm">
-                    <i class="fa-solid fa-file-excel text-lg"></i> Ambil Laporan Excel
-                </button>
-            </div>
+            <button onclick="unduhKeExcelLangsung()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer text-sm">
+                <i class="fa-solid fa-file-excel text-lg"></i> Ambil Laporan Excel
+            </button>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-chart-pie text-emerald-500"></i> Proporsi Transaksi
-                </h3>
-                <div class="h-56">
-                    <canvas id="chartProporsi"></canvas>
-                </div>
+                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-chart-pie text-emerald-500"></i> Proporsi Dana</h3>
+                <div class="h-56"><canvas id="chartProporsi"></canvas></div>
             </div>
-
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-chart-column text-blue-500"></i> Nominal Bulanan
-                </h3>
-                <div class="h-56">
-                    <canvas id="chartBatang"></canvas>
-                </div>
+                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-chart-column text-blue-500"></i> Nominal Transaksi</h3>
+                <div class="h-56"><canvas id="chartBatang"></canvas></div>
             </div>
-
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
                 <div>
-                    <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-file-contract text-blue-800"></i> Ringkasan Total
-                    </h3>
+                    <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fa-solid fa-file-contract text-blue-800"></i> Ringkasan Saldo</h3>
                     <div class="grid grid-cols-2 gap-3 text-sm">
-                        <p class="text-gray-500">Total Pemasukan</p>
-                        <p id="txtTotalMasuk" class="text-emerald-700 font-bold text-right font-mono">-</p>
-                        <p class="text-gray-500">Total Pengeluaran</p>
-                        <p id="txtTotalKeluar" class="text-rose-700 font-bold text-right font-mono">-</p>
-                        <p class="text-blue-900 font-semibold pt-1 border-t border-gray-100">Sisa Saldo Akhir</p>
-                        <p id="txtTotalSaldo" class="text-blue-950 font-extrabold text-right font-mono pt-1 border-t border-gray-100 text-base">-</p>
+                        <p class="text-gray-500">Total Pemasukan</p><p id="txtTotalMasuk" class="text-emerald-700 font-bold text-right font-mono">-</p>
+                        <p class="text-gray-500">Total Pengeluaran</p><p id="txtTotalKeluar" class="text-rose-700 font-bold text-right font-mono">-</p>
+                        <p class="text-blue-900 font-semibold pt-1 border-t border-gray-100">Saldo Akhir Anda</p><p id="txtTotalSaldo" class="text-blue-950 font-extrabold text-right font-mono pt-1 border-t border-gray-100 text-base">-</p>
                     </div>
                 </div>
-                <div class="h-20 mt-4 border-t border-gray-100 pt-3">
-                    <canvas id="chartTrenSaldo"></canvas>
-                </div>
+                <div class="h-20 mt-4 border-t border-gray-100 pt-3"><canvas id="chartTrenSaldo"></canvas></div>
             </div>
         </div>
 
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-600 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-pen-to-square"></i> Tambah Catatan Finansial Baru
-            </h2>
             <form id="formKeuangan" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Tanggal</label>
-                    <input type="date" id="inputTanggal" required class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Keterangan / Transaksi</label>
-                    <input type="text" id="inputKeterangan" placeholder="Contoh: Gaji, Bayar Kos" required class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Jenis</label>
-                    <select id="inputJenis" class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-                        <option value="Pemasukan">🟢 Pemasukan (Dana Masuk)</option>
-                        <option value="Pengeluaran">🔴 Pengeluaran (Dana Keluar)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Jumlah Nominal (Rp)</label>
-                    <div class="flex gap-2">
-                        <input type="number" id="inputJumlah" placeholder="0" min="1" required class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-all shadow cursor-pointer whitespace-nowrap">
-                            Simpan Cloud
-                        </button>
-                    </div>
-                </div>
+                <div><label class="block text-xs font-medium text-gray-600 mb-1">Tanggal</label><input type="date" id="inputTanggal" required class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none"></div>
+                <div><label class="block text-xs font-medium text-gray-600 mb-1">Keterangan</label><input type="text" id="inputKeterangan" required class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm"></div>
+                <div><label class="block text-xs font-medium text-gray-600 mb-1">Jenis</label><select id="inputJenis" class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm"><option value="Pemasukan">🟢 Pemasukan</option><option value="Pengeluaran">🔴 Pengeluaran</option></select></div>
+                <div><label class="block text-xs font-medium text-gray-600 mb-1">Nominal (Rp)</label><div class="flex gap-2"><input type="number" id="inputJumlah" required class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm"><button type="submit" class="bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm">Simpan</button></div></div>
             </form>
         </div>
 
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-600 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-list-ol"></i> Riwayat Transaksi Kronologis
-            </h2>
             <div class="overflow-x-auto rounded-xl border border-gray-200">
                 <table class="w-full text-left text-sm border-collapse min-w-[1000px]">
                     <thead>
                         <tr class="bg-blue-950 text-white text-xs uppercase tracking-wider font-semibold">
-                            <th class="p-4 text-center border-b border-blue-950/50">Hari</th>
-                            <th class="p-4 text-center border-b border-blue-950/50">Tanggal</th>
-                            <th class="p-4 border-b border-blue-950/50">Keterangan</th>
-                            <th class="p-4 text-center border-b border-blue-950/50">Jenis</th>
-                            <th class="p-4 text-right border-b border-blue-950/50">Masuk (Rp)</th>
-                            <th class="p-4 text-right border-b border-blue-950/50">Keluar (Rp)</th>
-                            <th class="p-4 text-right border-b border-blue-950/50">Saldo Akhir (Rp)</th>
-                            <th class="p-4 text-center border-b border-blue-950/50" style="width: 60px;">Aksi</th>
+                            <th class="p-4 text-center">Hari</th><th class="p-4 text-center">Tanggal</th><th class="p-4">Keterangan</th><th class="p-4 text-center">Jenis</th><th class="p-4 text-right">Masuk</th><th class="p-4 text-right">Keluar</th><th class="p-4 text-right">Saldo</th><th class="p-4 text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelBody" class="divide-y divide-gray-100 text-gray-700">
-                        </tbody>
+                    <tbody id="tabelBody" class="divide-y divide-gray-100 text-gray-700"></tbody>
                 </table>
             </div>
         </div>
@@ -126,7 +71,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // ✅ KODE FIREBASE CONFIG ASLI ANDA SUDAH TERSINKRONISASI DI SINI
+        // ⚠️ MASUKKAN DATA CONFIG FIREBASE ASLI ANDA DI SINI
         const firebaseConfig = {
             apiKey: "AIzaSyA...", 
             authDomain: "daftar-keuangan-default-rtdb.firebaseapp.com",
@@ -140,445 +85,75 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const transaksiRef = ref(db, "transaksi");
-
-        const namaHari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-        const namaBulanArr = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-
-        // Memori global untuk Excel & Grafik
-        window.antreanExcelLangsung = [];
-        let dataGlobalGrafik = {
-            masuk: 0,
-            keluar: 0,
-            riwayatSaldo: [],
-            labelWaktu: []
-        };
-
-        // 1. Sinkronisasi Data Cloud Realtime ke Tabel & Grafik (MODIFIED!)
-        onValue(transaksiRef, (snapshot) => {
-            const tabelBody = document.getElementById("tabelBody");
-            tabelBody.innerHTML = ""; 
-            window.antreanExcelLangsung = []; 
-
-            // Reset data ringkasan tkes & grafik
-            dataGlobalGrafik = { masuk: 0, keluar: 0, riwayatSaldo: [], labelWaktu: [] };
-
-            if (!snapshot.exists()) {
-                tabelBody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-gray-400 bg-gray-50 italic">Belum ada data keuangan terdeteksi di cloud.</td></tr>`;
-                updateTampilanVisual(); // Kosongkan grafik
-                return;
-            }
-
-            let daftarTransaksi = [];
-            snapshot.forEach((childSnapshot) => {
-                daftarTransaksi.push({ id: childSnapshot.key, ...childSnapshot.val() });
-            });
-
-            // Urutkan kronologis
-            daftarTransaksi.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
-
-            let akumulasiSaldo = 0;
-
-            daftarTransaksi.forEach((item) => {
-                const dateObj = new Date(item.tanggal);
-                const hari = namaHari[dateObj.getDay()] || "-";
-                const tanggalText = String(dateObj.getDate()).padStart(2, '0') + '/' + String(dateObj.getMonth() + 1).padStart(2, '0') + '/' + dateObj.getFullYear();
-                const namaBulan = namaBulanArr[dateObj.getMonth()];
-                
-                const nominal = parseInt(item.jumlah) || 0;
-                let kolomPemasukan = 0;
-                let kolomPengeluaran = 0;
-
-                if (item.jenis === "Pemasukan") {
-                    kolomPemasukan = nominal;
-                    akumulasiSaldo += nominal;
-                    dataGlobalGrafik.masuk += nominal;
-                } else {
-                    kolomPengeluaran = nominal;
-                    akumulasiSaldo -= nominal;
-                    dataGlobalGrafik.keluar += nominal;
-                }
-
-                // Masukkan data untuk grafik tren saldo
-                dataGlobalGrafik.riwayatSaldo.push(akumulasiSaldo);
-                dataGlobalGrafik.labelWaktu.push(tanggalText);
-
-                const warnaJenis = item.jenis === "Pemasukan" ? "text-emerald-700 bg-emerald-50 border border-emerald-100" : "text-rose-700 bg-rose-50 border border-rose-100";
-
-                const rowHtml = `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-4 text-center text-gray-500 font-medium">${hari}</td>
-                        <td class="p-4 text-center text-gray-800 font-mono">${tanggalText}</td>
-                        <td class="p-4 text-gray-800 font-semibold">${item.keterangan}Ide yang sangat bagus! Menambahkan **grafik visual interaktif (Dashboard)** adalah peningkatan besar untuk aplikasi keuangan Anda.
-
-Dengan grafik, Anda tidak perlu lagi pusing melihat deretan angka yang panjang di tabel untuk mengetahui kondisi keuangan Anda. Anda bisa langsung melihat persentase pengeluaran vs pemasukan serta tren saldo Anda.
-
-Untuk mewujudkannya, saya telah memperbarui kode `index.html` Anda. Saya menambahkan **tiga grafik interaktif** di bagian atas (menggunakan pustaka populer `Chart.js`):
-1.  **Grafik Donat (Proporsi Pemasukan vs Pengeluaran):** Untuk melihat persentase proporsi total uang masuk dan uang keluar bulan ini.
-2.  **Grafik Batang (Pemasukan vs Pengeluaran):** Untuk membandingkan jumlah nominal dana masuk dan dana keluar secara visual berdampingan.
-3.  **Grafik Tren Saldo (Line Chart):** Untuk melihat tren naik-turunnya saldo Anda dari waktu ke waktu secara kronologis.
-
----
-
-### 💻 Kode Lengkap Website Terbaru dengan Grafik (`index.html`)
-
-Silakan salin seluruh kode utuh di bawah ini dan tempelkan (*paste*) untuk mengganti seluruh isi file `index.html` Anda yang lama di VS Code:
-
-```html
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Keuangan & Dashboard Grafik Interaktif</title>
-    <script src="[https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4](https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4)"></script>
-    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
-    
-    <script src="[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)"></script> <script src="[https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js](https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js)"></script> </head>
-<body class="bg-gray-100 text-gray-800 font-sans p-3 md:p-6">
-
-    <div class="max-w-7xl mx-auto space-y-6">
-        
-        <header class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-blue-900 flex items-center gap-2">
-                    📊 <span class="hidden sm:inline">Aplikasi</span> Daftar Keuangan & Dashboard
-                </h1>
-                <p class="text-sm text-gray-500 mt-1">Sinkronisasi Cloud Realtime & Visualisasi Grafik</p>
-            </div>
-            <div class="flex gap-2 self-start md:self-center">
-                <button onclick="unduhKeExcelLangsung()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer text-sm">
-                    <i class="fa-solid fa-file-excel text-lg"></i> Ambil Laporan Excel
-                </button>
-            </div>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-chart-pie text-emerald-500"></i> Proporsi Dana Masuk vs Keluar
-                </h3>
-                <div class="h-56">
-                    <canvas id="chartProporsi"></canvas>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-chart-column text-blue-500"></i> Nominal Pemasukan vs Pengeluaran
-                </h3>
-                <div class="h-56">
-                    <canvas id="chartBatang"></canvas>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-file-contract text-blue-800"></i> Ringkasan Sisa Saldo Anda
-                    </h3>
-                    <div class="grid grid-cols-2 gap-3 text-sm">
-                        <p class="text-gray-500">Total Pemasukan</p>
-                        <p id="txtTotalMasuk" class="text-emerald-700 font-bold text-right font-mono">-</p>
-                        <p class="text-gray-500">Total Pengeluaran</p>
-                        <p id="txtTotalKeluar" class="text-rose-700 font-bold text-right font-mono">-</p>
-                        <p class="text-blue-900 font-semibold pt-1 border-t border-gray-100">Saldo Akhir Anda</p>
-                        <p id="txtTotalSaldo" class="text-blue-950 font-extrabold text-right font-mono pt-1 border-t border-gray-100 text-base">-</p>
-                    </div>
-                </div>
-                <div class="h-20 mt-4 border-t border-gray-100 pt-3">
-                    <canvas id="chartTrenSaldo"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-600 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-pen-to-square"></i> Tambah Catatan Transaksi (Otomatis ke Grafik)
-            </h2>
-            <form id="formKeuangan" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Tanggal</label>
-                    <input type="date" id="inputTanggal" required class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Keterangan / Transaksi</label>
-                    <input type="text" id="inputKeterangan" placeholder="Contoh: Gaji, Bayar Kos" required class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Jenis</label>
-                    <select id="inputJenis" class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
-                        <option value="Pemasukan">🟢 Pemasukan (Dana Masuk)</option>
-                        <option value="Pengeluaran">🔴 Pengeluaran (Dana Keluar)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Jumlah Nominal (Rp)</label>
-                    <div class="flex gap-2">
-                        <input type="number" id="inputJumlah" placeholder="0" min="1" required class="w-full bg-white border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono">
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-all shadow cursor-pointer whitespace-nowrap">
-                            Simpan Cloud
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-600 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-list-ol"></i> Riwayat Transaksi Kronologis
-            </h2>
-            <div class="overflow-x-auto rounded-xl border border-gray-200">
-                <table class="w-full text-left text-sm border-collapse min-w-[1000px]">
-                    <thead>
-                        <tr class="bg-blue-950 text-white text-xs uppercase tracking-wider font-semibold">
-                            <th class="p-4 text-center border-b border-blue-950/50">Hari</th>
-                            <th class="p-4 text-center border-b border-blue-950/50">Tanggal</th>
-                            <th class="p-4 border-b border-blue-950/50">Keterangan</th>
-                            <th class="p-4 text-center border-b border-blue-950/50">Jenis</th>
-                            <th class="p-4 text-right border-b border-blue-950/50">Masuk (Rp)</th>
-                            <th class="p-4 text-right border-b border-blue-950/50">Keluar (Rp)</th>
-                            <th class="p-4 text-right border-b border-blue-950/50">Saldo Akhir (Rp)</th>
-                            <th class="p-4 text-center border-b border-blue-950/50" style="width: 60px;">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelBody" class="divide-y divide-gray-100 text-gray-700">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "[https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js](https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js)";
-        import { getDatabase, ref, push, onValue, remove } from "[https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js](https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js)";
-
-        // ✅ KODE FIREBASE CONFIG ASLI ANDA SUDAH TERSINKRONISASI DI SINI
-        const firebaseConfig = {
-            apiKey: "AIzaSyA...", 
-            authDomain: "daftar-keuangan-default-rtdb.firebaseapp.com",
-            databaseURL: "[https://daftar-keuangan-default-rtdb.asia-southeast1.firebasedatabase.app](https://daftar-keuangan-default-rtdb.asia-southeast1.firebasedatabase.app)",
-            projectId: "daftar-keuangan",
-            storageBucket: "daftar-keuangan.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const transaksiRef = ref(db, "transaksi");
-
         const namaHariArr = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-        
-        // Memori global untuk Excel & Grafik
         window.antreanExcelLangsung = [];
-        let dataGlobalGrafik = {
-            masuk: 0,
-            keluar: 0,
-            riwayatSaldo: [],
-            labelWaktu: []
-        };
+        let dataGlobalGrafik = { masuk: 0, keluar: 0, riwayatSaldo: [], labelWaktu: [] };
 
-        // 1. Sinkronisasi Data Cloud Realtime ke Tabel & Grafik (MODIFIED! - Sekarang Menghitung Data Grafik)
         onValue(transaksiRef, (snapshot) => {
             const tabelBody = document.getElementById("tabelBody");
-            tabelBody.innerHTML = ""; 
-            window.antreanExcelLangsung = []; 
-
-            // Reset data ringkasan tkes & grafik
+            tabelBody.innerHTML = ""; window.antreanExcelLangsung = [];
             dataGlobalGrafik = { masuk: 0, keluar: 0, riwayatSaldo: [], labelWaktu: [] };
 
-            if (!snapshot.exists()) {
-                tabelBody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-gray-400 bg-gray-50 italic">Belum ada data keuangan terdeteksi di cloud.</td></tr>`;
-                updateTampilanVisual(); // Kosongkan grafik
-                return;
-            }
-
+            if (!snapshot.exists()) { updateTampilanVisual(); return; }
             let daftarTransaksi = [];
-            snapshot.forEach((childSnapshot) => {
-                daftarTransaksi.push({ id: childSnapshot.key, ...childSnapshot.val() });
-            });
-
-            // Urutkan kronologis agar matematika perhitungan Saldo Akhir tidak keliru
+            snapshot.forEach((childSnapshot) => { daftarTransaksi.push({ id: childSnapshot.key, ...childSnapshot.val() }); });
             daftarTransaksi.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
-
             let akumulasiSaldo = 0;
 
             daftarTransaksi.forEach((item) => {
                 const dateObj = new Date(item.tanggal);
                 const hari = namaHariArr[dateObj.getDay()] || "-";
                 const tanggalText = String(dateObj.getDate()).padStart(2, '0') + '/' + String(dateObj.getMonth() + 1).padStart(2, '0') + '/' + dateObj.getFullYear();
-                
                 const nominal = parseInt(item.jumlah) || 0;
-                let kolomPemasukan = 0;
-                let kolomPengeluaran = 0;
+                let kolomPemasukan = 0, kolomPengeluaran = 0;
 
-                if (item.jenis === "Pemasukan") {
-                    kolomPemasukan = nominal;
-                    akumulasiSaldo += nominal;
-                    dataGlobalGrafik.masuk += nominal;
-                } else {
-                    kolomPengeluaran = nominal;
-                    akumulasiSaldo -= nominal;
-                    dataGlobalGrafik.keluar += nominal;
-                }
+                if (item.jenis === "Pemasukan") { kolomPemasukan = nominal; akumulasiSaldo += nominal; dataGlobalGrafik.masuk += nominal; }
+                else { kolomPengeluaran = nominal; akumulasiSaldo -= nominal; dataGlobalGrafik.keluar += nominal; }
 
-                // Masukkan data untuk grafik tren saldo
                 dataGlobalGrafik.riwayatSaldo.push(akumulasiSaldo);
                 dataGlobalGrafik.labelWaktu.push(tanggalText);
 
-                const warnaJenis = item.jenis === "Pemasukan" ? "text-emerald-700 bg-emerald-50 border border-emerald-100" : "text-rose-700 bg-rose-50 border border-rose-100";
-
-                const rowHtml = `
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-4 text-center text-gray-500 font-medium">${hari}</td>
-                        <td class="p-4 text-center text-gray-800 font-mono">${tanggalText}</td>
-                        <td class="p-4 text-gray-800 font-semibold">${item.keterangan}</td>
-                        <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-semibold ${warnaJenis}">${item.jenis}</span></td>
-                        <td class="p-4 text-right border-r border-gray-100 text-emerald-700 font-mono font-bold">${kolomPemasukan > 0 ? 'Rp ' + kolomPemasukan.toLocaleString('id-ID') : '-'}</td>
-                        <td class="p-4 text-right border-r border-gray-100 text-rose-700 font-mono font-bold">${kolomPengeluaran > 0 ? 'Rp ' + kolomPengeluaran.toLocaleString('id-ID') : '-'}</td>
-                        <td class="p-4 text-right font-extrabold text-blue-900 font-mono">Rp ${akumulasiSaldo.toLocaleString('id-ID')}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="hapusData('${item.id}')" class="text-gray-400 hover:text-rose-600 transition-colors p-1.5 rounded-lg hover:bg-rose-50 cursor-pointer">
-                                <i class="fa-solid fa-trash-can text-sm"></i>
-                            </button>
-                        </td>
+                const warnaJenis = item.jenis === "Pemasukan" ? "text-emerald-700 bg-emerald-50" : "text-rose-700 bg-rose-50";
+                tabelBody.insertAdjacentHTML('beforeend', `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-4 text-center">${hari}</td><td class="p-4 text-center font-mono">${tanggalText}</td><td class="p-4 font-semibold">${item.keterangan}</td><td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs ${warnaJenis}">${item.jenis}</span></td>
+                        <td class="p-4 text-right text-emerald-700 font-mono">${kolomPemasukan > 0 ? 'Rp ' + kolomPemasukan.toLocaleString('id-ID') : '-'}</td><td class="p-4 text-right text-rose-700 font-mono">${kolomPengeluaran > 0 ? 'Rp ' + kolomPengeluaran.toLocaleString('id-ID') : '-'}</td><td class="p-4 text-right font-bold text-blue-900 font-mono">Rp ${akumulasiSaldo.toLocaleString('id-ID')}</td>
+                        <td class="p-4 text-center"><button onclick="hapusData('${item.id}')" class="text-gray-400 hover:text-rose-600"><i class="fa-solid fa-trash-can"></i></button></td>
                     </tr>
-                `;
-                tabelBody.insertAdjacentHTML('beforeend', rowHtml);
+                `);
 
-                // Format data objek baris demi baris yang siap dilempar langsung ke dokumen Excel (.xlsx)
-                window.antreanExcelLangsung.push({
-                    "Hari": hari,
-                    "Tanggal": tanggalText,
-                    "Keterangan": item.keterangan,
-                    "Jenis": item.jenis,
-                    "Pemasukan (Rp)": kolomPemasukan,
-                    "Pengeluaran (Rp)": kolomPengeluaran,
-                    "Sisa Saldo Akhir (Rp)": akumulasiSaldo
-                });
+                window.antreanExcelLangsung.push({ "Hari": hari, "Tanggal": tanggalText, "Keterangan": item.keterangan, "Jenis": item.jenis, "Pemasukan": kolomPemasukan, "Pengeluaran": kolomPengeluaran, "Saldo": akumulasiSaldo });
             });
-
-            // TERAKHIR: Update Tampilan Grafik & Ringkasan Teks
             updateTampilanVisual();
         });
 
-        // FUNGSI UNTUK MERENDER ULANG SEMUA GRAFIK & RINGKASAN TEKS (NEW!)
-        let chart1, chart2, chart3; // Variabel penampung instance grafik agar bisa di-destroy
-
+        let chart1, chart2, chart3;
         function updateTampilanVisual() {
-            // A. Update Ringkasan Teks
             document.getElementById("txtTotalMasuk").innerText = 'Rp ' + dataGlobalGrafik.masuk.toLocaleString('id-ID');
             document.getElementById("txtTotalKeluar").innerText = 'Rp ' + dataGlobalGrafik.keluar.toLocaleString('id-ID');
-            
             const saldoAkhir = dataGlobalGrafik.masuk - dataGlobalGrafik.keluar;
-            const elementSaldo = document.getElementById("txtTotalSaldo");
-            elementSaldo.innerText = 'Rp ' + saldoAkhir.toLocaleString('id-ID');
-            elementSaldo.className = saldoAkhir >= 0 ? "text-emerald-700 font-extrabold text-right font-mono" : "text-rose-700 font-extrabold text-right font-mono";
+            document.getElementById("txtTotalSaldo").innerText = 'Rp ' + saldoAkhir.toLocaleString('id-ID');
 
-            // B. Update Grafik (Destroy dulu instance lama biar tidak tumpang tindih)
-            if (chart1) chart1.destroy();
-            if (chart2) chart2.destroy();
-            if (chart3) chart3.destroy();
-
-            const ctx1 = document.getElementById('chartProporsi').getContext('2d');
-            const ctx2 = document.getElementById('chartBatang').getContext('2d');
-            const ctx3 = document.getElementById('chartTrenSaldo').getContext('2d');
-
-            // 1. Grafik Donat (Pie Chart - Proporsi Pemasukan vs Pengeluaran)
-            chart1 = new Chart(ctx1, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Pemasukan', 'Pengeluaran'],
-                    datasets: [{
-                        data: [dataGlobalGrafik.masuk, dataGlobalGrafik.keluar],
-                        backgroundColor: ['#10b981', '#f43f5e'], // emerald-500, rose-500
-                        borderWidth: 1,
-                        cutout: '70%'
-                    }]
-                },
-                options: { plugins: { legend: { position: 'bottom' } }, maintainAspectRatio: false }
-            });
-
-            // 2. Grafik Batang (Bar Chart - Perbandingan Nominal)
-            chart2 = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: ['Pemasukan', 'Pengeluaran'],
-                    datasets: [{
-                        label: 'Total Nominal (Rp)',
-                        data: [dataGlobalGrafik.masuk, dataGlobalGrafik.keluar],
-                        backgroundColor: ['#10b981', '#f43f5e'], // emerald-500, rose-500
-                        borderRadius: 8
-                    }]
-                },
-                options: { plugins: { legend: { display: false } }, maintainAspectRatio: false, scales: { y: { ticks: { callback: v => 'Rp' + v.toLocaleString('id-ID') } } } }
-            });
-
-            // 3. Mini Mini Mini Mini Tren Saldo (Line Chart)
-            chart3 = new Chart(ctx3, {
-                type: 'line',
-                data: {
-                    labels: dataGlobalGrafik.labelWaktu,
-                    datasets: [{
-                        label: 'Sisa Saldo (Rp)',
-                        data: dataGlobalGrafik.riwayatSaldo,
-                        borderColor: '#2C5282', // blue-800
-                        backgroundColor: '#E6FFFA', // teal-50
-                        tension: 0.3,
-                        fill: true,
-                        pointRadius: 1
-                    }]
-                },
-                options: { plugins: { legend: { display: false } }, maintainAspectRatio: false, scales: { x: { display: false }, y: { display: false } } }
-            });
+            if (chart1) chart1.destroy(); if (chart2) chart2.destroy(); if (chart3) chart3.destroy();
+            chart1 = new Chart(document.getElementById('chartProporsi'), { type: 'doughnut', data: { labels: ['Masuk', 'Keluar'], datasets: [{ data: [dataGlobalGrafik.masuk, dataGlobalGrafik.keluar], backgroundColor: ['#10b981', '#f43f5e'] }] }, options: { maintainAspectRatio: false } });
+            chart2 = new Chart(document.getElementById('chartBatang'), { type: 'bar', data: { labels: ['Masuk', 'Keluar'], datasets: [{ data: [dataGlobalGrafik.masuk, dataGlobalGrafik.keluar], backgroundColor: ['#10b981', '#f43f5e'] }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+            chart3 = new Chart(document.getElementById('chartTrenSaldo'), { type: 'line', data: { labels: dataGlobalGrafik.labelWaktu, datasets: [{ data: dataGlobalGrafik.riwayatSaldo, borderColor: '#2C5282', fill: false }] }, options: { maintainAspectRatio: false, scales: { x: { display: false }, y: { display: false } }, plugins: { legend: { display: false } } } });
         }
 
-        // 2. Kirim Data Form Baru Ke Cloud Firebase
         document.getElementById("formKeuangan").addEventListener("submit", (e) => {
             e.preventDefault();
-            const tanggal = document.getElementById("inputTanggal").value;
-            const keterangan = document.getElementById("inputKeterangan").value;
-            const jenis = document.getElementById("inputJenis").value;
-            const jumlah = document.getElementById("inputJumlah").value;
-
-            push(transaksiRef, {
-                tanggal: tanggal,
-                keterangan: keterangan,
-                jenis: jenis,
-                jumlah: parseInt(jumlah)
-            }).then(() => {
-                document.getElementById("inputKeterangan").value = "";
-                document.getElementById("inputJumlah").value = "";
-            });
+            push(transaksiRef, { tanggal: document.getElementById("inputTanggal").value, keterangan: document.getElementById("inputKeterangan").value, jenis: document.getElementById("inputJenis").value, jumlah: parseInt(document.getElementById("inputJumlah").value) })
+            .then(() => { document.getElementById("inputKeterangan").value = ""; document.getElementById("inputJumlah").value = ""; });
         });
 
-        // Fitur Hapus sinkron Cloud
-        window.hapusData = function(id) {
-            if (confirm("Hapus catatan transaksi ini dari database cloud secara permanen? Grafik akan otomatis diperbarui.")) {
-                const itemRef = ref(db, `transaksi/${id}`);
-                remove(itemRef);
-            }
-        };
+        window.hapusData = function(id) { if (confirm("Hapus?")) { remove(ref(db, `transaksi/${id}`)); } };
     </script>
-
     <script>
         function unduhKeExcelLangsung() {
-            if (!window.antreanExcelLangsung || window.antreanExcelLangsung.length === 0) {
-                alert("Tidak ada data transaksi finansial untuk dimasukkan ke Excel.");
-                return;
-            }
-            
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(window.antreanExcelLangsung);
-            
-            ws['!cols'] = [
-                { wch: 10 }, { wch: 12 }, 
-                { wch: 28 }, { wch: 14 }, { wch: 18 }, { wch: 18 }, { wch: 22 }
-            ];
-
-            XLSX.utils.book_append_sheet(wb, ws, "Daftar Keuangan Cloud");
-            const tanggalUnduh = new Date().toISOString().split('T')[0];
-            XLSX.writeFile(wb, `Laporan_Keuangan_Lengkap_Beserta_Tren_Saldo_${tanggalUnduh}.xlsx`);
+            if (!window.antreanExcelLangsung.length) return;
+            const wb = XLSX.utils.book_new(), ws = XLSX.utils.json_to_sheet(window.antreanExcelLangsung);
+            XLSX.utils.book_append_sheet(wb, ws, "Keuangan");
+            XLSX.writeFile(wb, `Laporan.xlsx`);
         }
     </script>
 </body>
