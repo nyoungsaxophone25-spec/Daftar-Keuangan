@@ -141,7 +141,7 @@
                     </tr>
                 `);
 
-                // Ditambahkan kata "Rp" pada baris rincian data untuk Excel
+                // Format rincian data harian di Excel menggunakan Rp
                 window.antreanExcelLangsung.push({ 
                     "Hari": hari, 
                     "Tanggal": tanggalText, 
@@ -158,21 +158,22 @@
             const totalSaldoAkhir = dataGlobalGrafik.masuk - dataGlobalGrafik.keluar;
             const warnaSaldoAkhir = totalSaldoAkhir >= 0 ? "text-blue-950" : "text-rose-800";
             
+            // Baris ringkasan tabel di halaman Web
             tabelBody.insertAdjacentHTML('beforeend', `
                 <tr class="bg-emerald-50/40 font-semibold border-t border-gray-200">
-                    <td colspan="4" class="p-3 text-right text-emerald-800 uppercase tracking-wider text-xs">Total Saldo Pemasukan Keseluruhan:</td>
+                    <td colspan="4" class="p-3 text-right text-emerald-800 uppercase tracking-wider text-xs">Total Saldo Pemasukan:</td>
                     <td class="p-3 text-right text-sm font-mono text-emerald-700">Rp ${dataGlobalGrafik.masuk.toLocaleString('id-ID')}</td>
                     <td class="p-3 text-right text-sm font-mono text-gray-400">-</td>
                     <td></td>
                 </tr>
                 <tr class="bg-rose-50/40 font-semibold border-t border-gray-100">
-                    <td colspan="4" class="p-3 text-right text-rose-800 uppercase tracking-wider text-xs">Total Saldo Pengeluaran Keseluruhan:</td>
+                    <td colspan="4" class="p-3 text-right text-rose-800 uppercase tracking-wider text-xs">Total Saldo Pengeluaran:</td>
                     <td class="p-3 text-right text-sm font-mono text-gray-400">-</td>
                     <td class="p-3 text-right text-sm font-mono text-rose-700">Rp ${dataGlobalGrafik.keluar.toLocaleString('id-ID')}</td>
                     <td></td>
                 </tr>
                 <tr class="bg-blue-50 font-bold border-t-2 border-blue-200">
-                    <td colspan="4" class="p-4 text-right text-blue-900 uppercase tracking-wider text-xs">Sisa Saldo Akhir (Total Semua Sisa Saldo):</td>
+                    <td colspan="4" class="p-4 text-right text-blue-900 uppercase tracking-wider text-xs">Sisa Saldo Akhir:</td>
                     <td colspan="2" class="p-4 text-right text-base font-mono ${warnaSaldoAkhir}">Rp ${totalSaldoAkhir.toLocaleString('id-ID')}</td>
                     <td></td>
                 </tr>
@@ -224,32 +225,34 @@
             const totalKeluar = window.totalSistem ? window.totalSistem.keluar : 0;
             const sisaSaldo = totalMasuk - totalKeluar;
 
-            // Tambah baris kosong pemisah
+            // Tambah baris kosong sebagai pemisah data harian dan total
             dataUntukExcel.push({ "Hari": "", "Tanggal": "", "Keterangan": "", "Jenis": "", "Pemasukan": "", "Pengeluaran": "" });
 
-            // Menambahkan tulisan "Rp" lengkap dengan pemisah ribuan titik pada ringkasan Excel
+            // 1. Baris TOTAL SALDO PEMASUKAN dengan format Rp
             dataUntukExcel.push({ 
-                "Hari": "TOTAL PEMASUKAN", 
+                "Hari": "TOTAL SALDO PEMASUKAN", 
                 "Tanggal": "", 
-                "Keterangan": "Total Saldo Pemasukan Keseluruhan", 
+                "Keterangan": "", 
                 "Jenis": "", 
                 "Pemasukan": "Rp " + totalMasuk.toLocaleString('id-ID'), 
                 "Pengeluaran": "-" 
             });
 
+            // 2. Baris TOTAL SALDO PENGELUARAN dengan format Rp
             dataUntukExcel.push({ 
-                "Hari": "TOTAL PENGELUARAN", 
+                "Hari": "TOTAL SALDO PENGELUARAN", 
                 "Tanggal": "", 
-                "Keterangan": "Total Saldo Pengeluaran Keseluruhan", 
+                "Keterangan": "", 
                 "Jenis": "", 
                 "Pemasukan": "-", 
                 "Pengeluaran": "Rp " + totalKeluar.toLocaleString('id-ID') 
             });
 
+            // 3. Baris SISA SALDO AKHIR dengan format Rp
             dataUntukExcel.push({ 
                 "Hari": "SISA SALDO AKHIR", 
                 "Tanggal": "", 
-                "Keterangan": "Sisa Saldo Akhir (Total Semua Sisa Saldo)", 
+                "Keterangan": "", 
                 "Jenis": "", 
                 "Pemasukan": "Rp " + sisaSaldo.toLocaleString('id-ID'), 
                 "Pengeluaran": "Rp " + sisaSaldo.toLocaleString('id-ID') 
