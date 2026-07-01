@@ -14,7 +14,7 @@
     <div class="max-w-7xl mx-auto space-y-6">
         <header class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-blue-900 flex items-center gap-2">📊 Aplikasi Daftar Keuangan & Dashboard</h1>
+                <h1 class="text-2xl font-bold text-blue-900 flex items-center gap-2">📊 Aplikasi Pencatatan Keuangan & Dashboard</h1>
                 <p class="text-sm text-gray-500 mt-1">Sinkronisasi Cloud Realtime & Visualisasi Grafik</p>
             </div>
             <button onclick="unduhKeExcelLangsung()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 cursor-pointer text-sm">
@@ -28,7 +28,7 @@
                 <div class="h-56"><canvas id="chartProporsi"></canvas></div>
             </div>
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-3">
-                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-chart-column text-blue-500"></i> Nominal Transaksi</h3>
+                <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-chart-column text-blue-500"></i> Transaksi Nominal</h3>
                 <div class="h-56"><canvas id="chartBatang"></canvas></div>
             </div>
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-between">
@@ -36,7 +36,7 @@
                     <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wider mb-2 flex items-center gap-2"><i class="fa-solid fa-file-contract text-blue-800"></i> Ringkasan Saldo</h3>
                     <div class="grid grid-cols-2 gap-3 text-sm">
                         <p class="text-gray-500">Total Pemasukan</p><p id="txtTotalMasuk" class="text-emerald-700 font-bold text-right font-mono">-</p>
-                        <p class="text-gray-500">Total Pengeluaran</p><p id="txtTotalKeluar" class="text-rose-700 font-bold text-right font-mono">-</p>
+                        <p class="text-gray-500">Total Pengeluaran</p><p id="txtTotalKeluaran" class="text-rose-700 font-bold text-right font-mono">-</p>
                         <p class="text-blue-900 font-semibold pt-1 border-t border-gray-100">Saldo Akhir Anda</p><p id="txtTotalSaldo" class="text-blue-950 font-extrabold text-right font-mono pt-1 border-t border-gray-100 text-base">-</p>
                     </div>
                 </div>
@@ -91,12 +91,17 @@
 
         onValue(transaksiRef, (snapshot) => {
             const tabelBody = document.getElementById("tabelBody");
-            tabelBody.innerHTML = ""; window.antreanExcelLangsung = [];
+            tabelBody.innerHTML = ""; 
+            window.antreanExcelLangsung = [];
             dataGlobalGrafik = { masuk: 0, keluar: 0, riwayatSaldo: [], labelWaktu: [] };
 
             if (!snapshot.exists()) { updateTampilanVisual(); return; }
+            
             let daftarTransaksi = [];
-            snapshot.forEach((childSnapshot) => { daftarTransaksi.push({ id: childSnapshot.key, ...childSnapshot.val() }); });
+            snapshot.forEach((childSnapshot) => { 
+                daftarTransaksi.push({ id: childSnapshot.key, ...childSnapshot.val() }); 
+            });
+            
             daftarTransaksi.sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
             let akumulasiSaldo = 0;
 
@@ -107,35 +112,50 @@
                 const nominal = parseInt(item.jumlah) || 0;
                 let kolomPemasukan = 0, kolomPengeluaran = 0;
 
-                if (item.jenis === "Pemasukan") { kolomPemasukan = nominal; akumulasiSaldo += nominal; dataGlobalGrafik.masuk += nominal; }
-                else { kolomPengeluaran = nominal; akumulasiSaldo -= nominal; dataGlobalGrafik.keluar += nominal; }
+                if (item.jenis === "Pemasukan") { 
+                    kolomPemasukan = nominal; 
+                    akumulasiSaldo += nominal; 
+                    dataGlobalGrafik.masuk += nominal; 
+                } else { 
+                    kolomPengeluaran = nominal; 
+                    akumulasiSaldo -= nominal; 
+                    dataGlobalGrafik.keluar += nominal; 
+                }
 
                 dataGlobalGrafik.riwayatSaldo.push(akumulasiSaldo);
                 dataGlobalGrafik.labelWaktu.push(tanggalText);
 
                 const warnaJenis = item.jenis === "Pemasukan" ? "text-emerald-700 bg-emerald-50" : "text-rose-700 bg-rose-50";
+                
                 tabelBody.insertAdjacentHTML('beforeend', `
                     <tr class="hover:bg-gray-50">
-                        <td class="p-4 text-center">${hari}</td><td class="p-4 text-center font-mono">${tanggalText}</td><td class="p-4 font-semibold">${item.keterangan}</td><td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs ${warnaJenis}">${item.jenis}</span></td>
-                        <td class="p-4 text-right text-emerald-700 font-mono">${kolomPemasukan > 0 ? 'Rp ' + kolomPemasukan.toLocaleString('id-ID') : '-'}</td><td class="p-4 text-right text-rose-700 font-mono">${kolomPengeluaran > 0 ? 'Rp ' + kolomPengeluaran.toLocaleString('id-ID') : '-'}</td>
+                        <td class="p-4 text-center">${hari}</td>
+                        <td class="p-4 text-center font-mono">${tanggalText}</td>
+                        <td class="p-4 font-semibold">${item.keterangan}</td>
+                        <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs ${warnaJenis}">${item.jenis}</span></td>
+                        <td class="p-4 text-right text-emerald-700 font-mono">${kolomPemasukan > 0 ? 'Rp ' + kolomPemasukan.toLocaleString('id-ID') : '-'}</td>
+                        <td class="p-4 text-right text-rose-700 font-mono">${kolomPengeluaran > 0 ? 'Rp ' + kolomPengeluaran.toLocaleString('id-ID') : '-'}</td>
                         <td class="p-4 text-center"><button onclick="hapusData('${item.id}')" class="text-gray-400 hover:text-rose-600"><i class="fa-solid fa-trash-can"></i></button></td>
                     </tr>
                 `);
 
                 window.antreanExcelLangsung.push({ "Hari": hari, "Tanggal": tanggalText, "Keterangan": item.keterangan, "Jenis": item.jenis, "Pemasukan": kolomPemasukan, "Pengeluaran": kolomPengeluaran });
             });
-
+            
             updateTampilanVisual();
         });
 
         let chart1, chart2, chart3;
         function updateTampilanVisual() {
             document.getElementById("txtTotalMasuk").innerText = 'Rp ' + dataGlobalGrafik.masuk.toLocaleString('id-ID');
-            document.getElementById("txtTotalKeluar").innerText = 'Rp ' + dataGlobalGrafik.keluar.toLocaleString('id-ID');
+            document.getElementById("txtTotalKeluaran").innerText = 'Rp ' + dataGlobalGrafik.keluar.toLocaleString('id-ID');
             const saldoAkhir = dataGlobalGrafik.masuk - dataGlobalGrafik.keluar;
             document.getElementById("txtTotalSaldo").innerText = 'Rp ' + saldoAkhir.toLocaleString('id-ID');
 
-            if (chart1) chart1.destroy(); if (chart2) chart2.destroy(); if (chart3) chart3.destroy();
+            if (chart1) chart1.destroy(); 
+            if (chart2) chart2.destroy(); 
+            if (chart3) chart3.destroy();
+            
             chart1 = new Chart(document.getElementById('chartProporsi'), { type: 'doughnut', data: { labels: ['Masuk', 'Keluar'], datasets: [{ data: [dataGlobalGrafik.masuk, dataGlobalGrafik.keluar], backgroundColor: ['#10b981', '#f43f5e'] }] }, options: { maintainAspectRatio: false } });
             chart2 = new Chart(document.getElementById('chartBatang'), { type: 'bar', data: { labels: ['Masuk', 'Keluar'], datasets: [{ data: [dataGlobalGrafik.masuk, dataGlobalGrafik.keluar], backgroundColor: ['#10b981', '#f43f5e'] }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } } } });
             chart3 = new Chart(document.getElementById('chartTrenSaldo'), { type: 'line', data: { labels: dataGlobalGrafik.labelWaktu, datasets: [{ data: dataGlobalGrafik.riwayatSaldo, borderColor: '#2C5282', fill: false }] }, options: { maintainAspectRatio: false, scales: { x: { display: false }, y: { display: false } }, plugins: { legend: { display: false } } } });
@@ -143,12 +163,21 @@
 
         document.getElementById("formKeuangan").addEventListener("submit", (e) => {
             e.preventDefault();
-            push(transaksiRef, { tanggal: document.getElementById("inputTanggal").value, keterangan: document.getElementById("inputKeterangan").value, jenis: document.getElementById("inputJenis").value, jumlah: parseInt(document.getElementById("inputJumlah").value) })
-            .then(() => { document.getElementById("inputKeterangan").value = ""; document.getElementById("inputJumlah").value = ""; });
+            push(transaksiRef, { 
+                tanggal: document.getElementById("inputTanggal").value, 
+                keterangan: document.getElementById("inputKeterangan").value, 
+                jenis: document.getElementById("inputJenis").value, 
+                jumlah: parseInt(document.getElementById("inputJumlah").value) 
+            })
+            .then(() => { 
+                document.getElementById("inputKeterangan").value = ""; 
+                document.getElementById("inputJumlah").value = ""; 
+            });
         });
 
         window.hapusData = function(id) { if (confirm("Hapus?")) { remove(ref(db, `transaksi/${id}`)); } };
     </script>
+    
     <script>
         function unduhKeExcelLangsung() {
             if (!window.antreanExcelLangsung.length) return;
