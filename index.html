@@ -87,7 +87,6 @@
         const transaksiRef = ref(db, "transaksi");
         const namaHariArr = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
         window.antreanExcelLangsung = [];
-        // Membuat variabel total agar bisa diakses oleh fungsi unduhExcel diluar modul firebase
         window.totalSistem = { masuk: 0, keluar: 0 }; 
         let dataGlobalGrafik = { masuk: 0, keluar: 0, riwayatSaldo: [], labelWaktu: [] };
 
@@ -142,14 +141,20 @@
                     </tr>
                 `);
 
-                window.antreanExcelLangsung.push({ "Hari": hari, "Tanggal": tanggalText, "Keterangan": item.keterangan, "Jenis": item.jenis, "Pemasukan": kolomPemasukan, "Pengeluaran": kolomPengeluaran });
+                // Ditambahkan kata "Rp" pada baris rincian data untuk Excel
+                window.antreanExcelLangsung.push({ 
+                    "Hari": hari, 
+                    "Tanggal": tanggalText, 
+                    "Keterangan": item.keterangan, 
+                    "Jenis": item.jenis, 
+                    "Pemasukan": kolomPemasukan > 0 ? 'Rp ' + kolomPemasukan.toLocaleString('id-ID') : '-', 
+                    "Pengeluaran": kolomPengeluaran > 0 ? 'Rp ' + kolomPengeluaran.toLocaleString('id-ID') : '-' 
+                });
             });
             
-            // Menyimpan total ke global window objek
             window.totalSistem.masuk = dataGlobalGrafik.masuk;
             window.totalSistem.keluar = dataGlobalGrafik.keluar;
 
-            // MENAMBAHKAN BARIS TOTAL DAN SISA SALDO DI BAWAH TABEL WEB
             const totalSaldoAkhir = dataGlobalGrafik.masuk - dataGlobalGrafik.keluar;
             const warnaSaldoAkhir = totalSaldoAkhir >= 0 ? "text-blue-950" : "text-rose-800";
             
@@ -213,44 +218,41 @@
         function unduhKeExcelLangsung() {
             if (!window.antreanExcelLangsung.length) return;
             
-            // Meng-copy data transaksi asli agar tidak merusak data realtime di tabel web
             const dataUntukExcel = JSON.parse(JSON.stringify(window.antreanExcelLangsung));
             
             const totalMasuk = window.totalSistem ? window.totalSistem.masuk : 0;
             const totalKeluar = window.totalSistem ? window.totalSistem.keluar : 0;
             const sisaSaldo = totalMasuk - totalKeluar;
 
-            // 1. Tambahkan baris kosong sebagai pembatas
+            // Tambah baris kosong pemisah
             dataUntukExcel.push({ "Hari": "", "Tanggal": "", "Keterangan": "", "Jenis": "", "Pemasukan": "", "Pengeluaran": "" });
 
-            // 2. Masukkan Baris Total Saldo Pemasukan Keseluruhan
+            // Menambahkan tulisan "Rp" lengkap dengan pemisah ribuan titik pada ringkasan Excel
             dataUntukExcel.push({ 
                 "Hari": "TOTAL PEMASUKAN", 
                 "Tanggal": "", 
                 "Keterangan": "Total Saldo Pemasukan Keseluruhan", 
                 "Jenis": "", 
-                "Pemasukan": totalMasuk, 
+                "Pemasukan": "Rp " + totalMasuk.toLocaleString('id-ID'), 
                 "Pengeluaran": "-" 
             });
 
-            // 3. Masukkan Baris Total Saldo Pengeluaran Keseluruhan
             dataUntukExcel.push({ 
                 "Hari": "TOTAL PENGELUARAN", 
                 "Tanggal": "", 
                 "Keterangan": "Total Saldo Pengeluaran Keseluruhan", 
                 "Jenis": "", 
                 "Pemasukan": "-", 
-                "Pengeluaran": totalKeluar 
+                "Pengeluaran": "Rp " + totalKeluar.toLocaleString('id-ID') 
             });
 
-            // 4. Masukkan Baris Sisa Saldo Akhir Keseluruhan
             dataUntukExcel.push({ 
                 "Hari": "SISA SALDO AKHIR", 
                 "Tanggal": "", 
                 "Keterangan": "Sisa Saldo Akhir (Total Semua Sisa Saldo)", 
                 "Jenis": "", 
-                "Pemasukan": sisaSaldo, 
-                "Pengeluaran": sisaSaldo 
+                "Pemasukan": "Rp " + sisaSaldo.toLocaleString('id-ID'), 
+                "Pengeluaran": "Rp " + sisaSaldo.toLocaleString('id-ID') 
             });
 
             const wb = XLSX.utils.book_new();
