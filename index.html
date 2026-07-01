@@ -125,12 +125,25 @@
                 window.antreanExcelLangsung.push({ "Hari": hari, "Tanggal": tanggalText, "Keterangan": item.keterangan, "Jenis": item.jenis, "Pemasukan": kolomPemasukan, "Pengeluaran": kolomPengeluaran });
             });
 
-            // MENAMBAHKAN BARIS TOTAL KESELURUHAN / SALDO AKHIR DI BAWAH TABEL
+            // MENAMBAHKAN BARIS RINGKASAN TOTAL TERPISAH DI BAWAH TABEL
             const totalSaldoAkhir = dataGlobalGrafik.masuk - dataGlobalGrafik.keluar;
             const warnaSaldoAkhir = totalSaldoAkhir >= 0 ? "text-blue-950" : "text-rose-800";
+            
             tabelBody.insertAdjacentHTML('beforeend', `
-                <tr class="bg-gray-50 font-bold border-t-2 border-gray-300">
-                    <td colspan="4" class="p-4 text-right text-blue-900 uppercase tracking-wider text-xs">Saldo Akhir (Total Keseluruhan):</td>
+                <tr class="bg-emerald-50/50 font-semibold border-t border-gray-200">
+                    <td colspan="4" class="p-3 text-right text-emerald-800 uppercase tracking-wider text-xs">Total Pemasukan Keseluruhan:</td>
+                    <td class="p-3 text-right text-sm font-mono text-emerald-700">Rp ${dataGlobalGrafik.masuk.toLocaleString('id-ID')}</td>
+                    <td class="p-3 text-right text-sm font-mono text-gray-400">-</td>
+                    <td></td>
+                </tr>
+                <tr class="bg-rose-50/50 font-semibold border-t border-gray-100">
+                    <td colspan="4" class="p-3 text-right text-rose-800 uppercase tracking-wider text-xs">Total Pengeluaran Keseluruhan:</td>
+                    <td class="p-3 text-right text-sm font-mono text-gray-400">-</td>
+                    <td class="p-3 text-right text-sm font-mono text-rose-700">Rp ${dataGlobalGrafik.keluar.toLocaleString('id-ID')}</td>
+                    <td></td>
+                </tr>
+                <tr class="bg-blue-50 font-bold border-t-2 border-blue-200">
+                    <td colspan="4" class="p-4 text-right text-blue-900 uppercase tracking-wider text-xs">Sisa Saldo Akhir (Total Bersih):</td>
                     <td colspan="2" class="p-4 text-right text-base font-mono ${warnaSaldoAkhir}">Rp ${totalSaldoAkhir.toLocaleString('id-ID')}</td>
                     <td></td>
                 </tr>
